@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.9.0'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
     stages {
         stage('Build') {
             steps {
@@ -18,18 +23,7 @@ pipeline {
         }
         stage('Deliver') {
             steps {
-                script {
-                    // Sanitize project name and version by removing non-printable characters
-                    def NAME = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.name | tr -d \'[:cntrl:]\' | awk \'{print $1}\'', returnStdout: true).trim()
-                    def VERSION = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.version | tr -d \'[:cntrl:]\' | awk \'{print $1}\'', returnStdout: true).trim()
-                    
-                    // Print out NAME and VERSION for debugging
-                    echo "Project Name: ${NAME}"
-                    echo "Project Version: ${VERSION}"
-                    
-                    // Run the jar file with sanitized name and version
-                    sh "java -jar target/${NAME}-${VERSION}.jar"
-                }
+                sh './jenkins/scripts/deliver.sh'
             }
         }
     }
