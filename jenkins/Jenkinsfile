@@ -19,13 +19,15 @@ pipeline {
         stage('Deliver') {
             steps {
                 script {
-                    def NAME = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.name | sed "s/[^a-zA-Z0-9._-]//g"', returnStdout: true).trim()
-                    def VERSION = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.version | sed "s/[^a-zA-Z0-9._-]//g"', returnStdout: true).trim()
+                    // Sanitize project name and version by removing non-printable characters
+                    def NAME = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.name | tr -d \'[:cntrl:]\' | awk \'{print $1}\'', returnStdout: true).trim()
+                    def VERSION = sh(script: 'mvn -q -DforceStdout help:evaluate -Dexpression=project.version | tr -d \'[:cntrl:]\' | awk \'{print $1}\'', returnStdout: true).trim()
                     
                     // Print out NAME and VERSION for debugging
                     echo "Project Name: ${NAME}"
                     echo "Project Version: ${VERSION}"
                     
+                    // Run the jar file with sanitized name and version
                     sh "java -jar target/${NAME}-${VERSION}.jar"
                 }
             }
