@@ -12,14 +12,14 @@ echo 'The following command extracts the value of the <name/> element'
 echo 'within <project/> of your Java/Maven project''s "pom.xml" file.'
 set -x
 # Sanitize the NAME variable to remove unwanted characters and escape sequences
-NAME=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.name | tr -d '\r' | tr -d '\n' | sed 's/[^a-zA-Z0-9._-]//g')
+NAME=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.name | sed -e 's/\x1b\[[0-9;]*m//g' | tr -d '\r' | tr -d '\n' | sed 's/[^a-zA-Z0-9._-]//g')
 set +x
 
 echo 'The following command behaves similarly to the previous one but'
 echo 'extracts the value of the <version/> element within <project/> instead.'
 set -x
 # Sanitize the VERSION variable to remove unwanted characters and escape sequences
-VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version | tr -d '\r' | tr -d '\n' | sed 's/[^a-zA-Z0-9._-]//g')
+VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version | sed -e 's/\x1b\[[0-9;]*m//g' | tr -d '\r' | tr -d '\n' | sed 's/[^a-zA-Z0-9._-]//g')
 set +x
 
 echo 'The following command runs and outputs the execution of your Java'
